@@ -11,29 +11,24 @@ latest_time = None
 
 # Create Flask app for API
 api = Flask(__name__)
-
 @api.route("/sync", methods=["POST"])
 def sync():
-    global app_requests, latest_time
+    global latest_time
 
     data = request.json
     client_type = data.get("client")
 
-    if client_type not in app_requests:
+    if client_type not in ["cpp", "android"]:
         return jsonify({"error": "Invalid client type"}), 400
 
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    latest_time = current_time
+
+    # Optional: update which client last pinged
     with lock:
         app_requests[client_type] = True
-        
-        if (app_requests[client_type]):
-        	current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            latest_time = current_time
-            # Reset for next round
-            #app_requests = {"cpp": False, "android": False}
-            return jsonify({"time": current_time})
-        else:
-        	return jsonify({"message": f"Waiting for the other client"})
 
+    return jsonify({"time": current_time, "client": client_type})
 
 # Thread to run Flask API in background
 def run_flask():
