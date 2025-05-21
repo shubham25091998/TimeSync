@@ -24,16 +24,15 @@ def sync():
 
     with lock:
         app_requests[client_type] = True
-
-        if all(app_requests.values()):
-            # Both have requested
-            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        if (app_requests[client_type]):
+        	current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             latest_time = current_time
             # Reset for next round
-            app_requests = {"cpp": False, "android": False}
+            #app_requests = {"cpp": False, "android": False}
             return jsonify({"time": current_time})
         else:
-            return jsonify({"message": f"Waiting for the other client"})
+        	return jsonify({"message": f"Waiting for the other client"})
 
 
 # Thread to run Flask API in background
@@ -54,5 +53,4 @@ st.write("Android Client:", app_requests["android"])
 st.write("Last Synced Time:", latest_time if latest_time else "Not yet synced")
 
 st.write("Listening on port 5001 at `/sync`")
-
 
